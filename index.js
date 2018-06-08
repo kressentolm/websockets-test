@@ -70,6 +70,4 @@ io.in(room).emit('message', 'what is going on, party people?');
 // this message will NOT go to the client defined above
 io.in('foobar').emit('message', 'anyone in this room yet?');
 
-http.listen(3000, function () {
-    console.log('listening on *:3000');
-});
+http.listen(3000, "127.0.0.1");
