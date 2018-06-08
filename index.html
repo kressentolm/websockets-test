@@ -116,7 +116,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.1.1/socket.io.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.4/jquery.min.js"></script>
     <script>
-        var socket = io.connect('https://cblackmon.com', {secure: true, reconnect: true, rejectUnauthorized : false});
+        var socket = io.connect('//cblackmon.com');
 
         // on connection to server, ask for user's name with an anonymous callback
         socket.on('connect', function () {
