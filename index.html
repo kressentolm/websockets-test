@@ -1,6 +1,7 @@
 <!doctype html>
 <html>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <head>
     <title>Socket.IO chat</title>
     <style>
@@ -11,7 +12,25 @@
         }
 
         body {
-            font: 13px Helvetica, Arial;
+            font: 14px Helvetica, Arial;
+        }
+
+        p {
+            margin-bottom: 0.25em;
+        }
+
+        .header {
+            width: 100%;
+            border-bottom: 1px solid #ccc;
+            height: 85px;
+            padding: 10px;
+        }
+
+        .main-area {
+            width: 100%;
+            height: 80vh;
+            overflow: scroll-y;
+            padding: 10px;
         }
 
         form {
@@ -36,6 +55,35 @@
             padding: 10px;
         }
 
+        #data {
+            width: 90%;
+            padding: 10px 5px;            
+        }
+
+        #datasend {
+            background-color: #FFF;
+            color: #000;
+            -webkit-appearance: none;
+            appearance: none;
+            border: 1px solid black;
+            padding: 11px;
+            transition: all .3s ease-in-out;
+        }
+
+        #datasend:hover {
+            border: 1px solid red;
+            color: red;
+            cursor: pointer;
+        }
+
+        .message-area {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            padding: 1em 0;
+            text-align: center;
+        }
+
         #messages {
             list-style-type: none;
             margin: 0;
@@ -53,26 +101,73 @@
 </head>
 
 <body>
-    <ul id="messages"></ul>
-    <form action="">
-        <input id="m" autocomplete="off" />
-        <button>Send</button>
-    </form>
+    <div class="header">
+        <b>ROOMS</b>
+        <div id="rooms"></div>
+    </div>
+    <div class="main-area">
+        <div id="conversation"></div>
+        <div class="message-area">
+            <input id="data" />
+            <input type="button" id="datasend" value="send" />
+        </div>
+    </div>
+
     <script src="/socket.io/socket.io.js"></script>
-    <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.4/jquery.min.js"></script>
     <script>
-        $(function () {
-            var socket = io();
-            $('form').submit(function () {
-                socket.emit('chat message', $('#m').val());
-                $('#m').val('');
-                return false;
+        var socket = io.connect('http://localhost:3000', {
+            "transports": ['websocket']
+        });
+
+        // on connection to server, ask for user's name with an anonymous callback
+        socket.on('connect', function () {
+            // call the server-side function 'adduser' and send one parameter (value of prompt)
+            socket.emit('adduser', prompt("What's your name?"));
+        });
+
+        // listener, whenever the server emits 'updatechat', this updates the chat body
+        socket.on('updatechat', function (username, data) {
+            $('#conversation').append('<p><strong>' + username + ': </strong><span> ' + data + '</span></p>');
+        });
+
+        // listener, whenever the server emits 'updaterooms', this updates the room the client is in
+        socket.on('updaterooms', function (rooms, current_room) {
+            $('#rooms').empty();
+            $.each(rooms, function (key, value) {
+                if (value == current_room) {
+                    $('#rooms').append('<div>' + value + '</div>');
+                } else {
+                    $('#rooms').append('<div><a href="#" onclick="switchRoom(\'' + value + '\')">' +
+                        value + '</a></div>');
+                }
             });
-            socket.on('chat message', function (msg) {
-                $('#messages').append($('<li>').text(msg));
+        });
+
+        function switchRoom(room) {
+            socket.emit('switchRoom', room);
+        }
+
+        // on load of page
+        $(function () {
+            // when the client clicks SEND
+            $('#datasend').click(function () {
+                var message = $('#data').val();
+                $('#data').val('');
+                // tell server to execute 'sendchat' and send along one parameter
+                socket.emit('sendchat', message);
+            });
+
+            // when the client hits ENTER on their keyboard
+            $('#data').keypress(function (e) {
+                if (e.which == 13) {
+                    $(this).blur();
+                    $('#datasend').focus().click();
+                }
             });
         });
     </script>
+
 </body>
 
 </html>
