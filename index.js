@@ -1,6 +1,16 @@
+
+var fs = require( 'fs' );
 var app = require('express')();
-var http = require('http').Server(app);
-var io = require('socket.io')(http);
+var https = require('https');
+var server = https.createServer({ 
+    key: fs.readFileSync('privkey.pem'),
+    cert: fs.readFileSync('fullchain.pem') ,
+    requestCert: false, 
+    rejectUnauthorized: false 
+},app);
+
+server.listen(3000);
+var io = require('socket.io').listen(server);
 
 app.get('/', function (req, res) {
     res.sendFile(__dirname + '/index.html');
@@ -70,6 +80,4 @@ io.in(room).emit('message', 'what is going on, party people?');
 // this message will NOT go to the client defined above
 io.in('foobar').emit('message', 'anyone in this room yet?');
 
-http.listen(3000, function () {
-    console.log('listening on *:3000');
-});
+http.listen(3000);
