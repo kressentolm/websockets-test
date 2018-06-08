@@ -1,6 +1,6 @@
 var app = require('express')();
-var http = require('http').Server(app);
-var io = require('socket.io')(http);
+var server = require('http').Server(app);
+var io = require('socket.io').listen(server, { log: true });
 
 app.get('/', function (req, res) {
     res.sendFile(__dirname + '/index.html');
@@ -70,4 +70,4 @@ io.in(room).emit('message', 'what is going on, party people?');
 // this message will NOT go to the client defined above
 io.in('foobar').emit('message', 'anyone in this room yet?');
 
-http.listen(3000, "127.0.0.1");
+server.listen(3000, "127.0.0.1");
