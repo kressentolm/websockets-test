@@ -3,8 +3,9 @@ var fs = require( 'fs' );
 var app = require('express')();
 var https = require('https');
 var server = https.createServer({ 
-    key: fs.readFileSync('privkey.pem'),
-    cert: fs.readFileSync('fullchain.pem') ,
+    key: fs.readFileSync('/etc/letsencrypt/live/cblackmon.com/privkey.pem'), 
+    cert: fs.readFileSync('/etc/letsencrypt/live/cblackmon.com/cert.pem'), 
+    ca: fs.readFileSync('/etc/letsencrypt/live/cblackmon.com/chain.pem'), 
     requestCert: false, 
     rejectUnauthorized: false 
 },app);
