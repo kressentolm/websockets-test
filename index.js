@@ -1,6 +1,8 @@
 var app = require('express')();
 var server = require('http').Server(app);
-var io = require('socket.io').listen(server, { log: true });
+var io = require('socket.io').listen(server, { 
+    log: true
+});
 
 app.get('/', function (req, res) {
     res.sendFile(__dirname + '/index.html');
@@ -12,6 +14,8 @@ var usernames = {};
 var rooms = ['room1', 'room2', 'room3'];
 
 io.on('connection', function (socket) {
+
+    console.log('Connected.');
 
     // when the client emits 'adduser', this listens and executes
     socket.on('adduser', function (username) {
@@ -64,10 +68,12 @@ io.on('connection', function (socket) {
 });
 
 // now, it's easy to send a message to just the clients in a given room
-room = "abc123";
-io.in(room).emit('message', 'what is going on, party people?');
+// room = "abc123";
+// io.in(room).emit('message', 'what is going on, party people?');
 
-// this message will NOT go to the client defined above
-io.in('foobar').emit('message', 'anyone in this room yet?');
+// // this message will NOT go to the client defined above
+// io.in('foobar').emit('message', 'anyone in this room yet?');
 
-server.listen(3000, "127.0.0.1");
+server.listen(3000, function() {
+    console.log('running!');
+});
